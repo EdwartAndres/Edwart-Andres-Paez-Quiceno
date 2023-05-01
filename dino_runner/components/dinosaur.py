@@ -13,7 +13,7 @@ class Dinosaur(Sprite):
         self.jump_speed= self.JUMP_SPEED
         self.dino_run = True
         self.dino_jump = False
-        self,dino_duck = False
+        self.dino_duck = False
         self.step_index = 0 
 
     def update (self, user_input):
@@ -21,7 +21,7 @@ class Dinosaur(Sprite):
             self.run()
         elif self.dino_jump:
             self.jump()
-        if user_input[pygame.k_up] and not self.dino_jump:
+        if user_input[pygame.K_UP] and not self.dino_jump:
             self.dino_jump =True
             self.dino_run = False
         elif not self.dino_jump:
