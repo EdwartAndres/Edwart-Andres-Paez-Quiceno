@@ -18,13 +18,22 @@ class Game:
         self.player = Dinosaur()
 
     def run(self):
-        # Game loop: events - update - draw
+    
+
         self.playing = True
         while self.playing:
+            # 1. Manejar eventos
             self.events()
+
+            # 2. Actualizar el estado del juego
             self.update()
+
+            # 3. Dibujar objetos en pantalla
             self.draw()
+
+        # Salir del programa
         pygame.quit()
+        
 
     def events(self):
         for event in pygame.event.get():
