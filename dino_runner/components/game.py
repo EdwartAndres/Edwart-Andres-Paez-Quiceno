@@ -1,9 +1,10 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, FONT_STYLE
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, FONT_STYLE, DEFAULT_TYPE
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.menu import Menu
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 
 
 class Game:
@@ -25,6 +26,10 @@ class Game:
         self.death_count = 0
         self.score = 0
         self.highest_score = 0
+        self.background_color = 0
+        self.background_dark = False
+        self.background_color_count = 0
+        self.power_up_manager = PowerUpManager()
 
     def execute(self):
         self.running = True
@@ -38,6 +43,9 @@ class Game:
         self.obstacle_manager.reset_obstacles()
         self.player.reset_dinosaur()
         self.score = 0
+        self.background_color = 255
+        self.background_dark = False
+        self.background_color_count = 0
         self.game_speed = self.GAME_SPEED
         # Game loop: events - update - draw
         self.playing = True
@@ -45,6 +53,7 @@ class Game:
             self.events()
             self.update()
             self.draw()
+            self.update_background()
 
     def events(self):
         for event in pygame.event.get():
@@ -55,15 +64,18 @@ class Game:
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
         self.obstacle_manager.update(self)
+        self.power_up_manager.update(self)
         self.update_score()
 
     def draw(self):
         self.clock.tick(FPS)
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((self.background_color, self.background_color, self.background_color))
         self.draw_background()
-        self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
+        self.power_up_manager.draw(self.screen)
+        self.player.draw(self.screen)
         self.draw_score()
+        self.draw_power_up_time()
         pygame.display.update()
         #pygame.display.flip()
 
@@ -80,9 +92,9 @@ class Game:
         half_screen_width = SCREEN_WIDTH // 2
         half_screen_height = SCREEN_HEIGHT // 2
         self.menu.reset_screen_color(self.screen)
-
+        # mostrar datos de puntaje despues de la primera muerte
         if self.death_count > 0:
-            self.highest_score = self.score if self.highest_score < self.score else self.highest_score
+            self.highest_score = max(self.score, self.highest_score)
             self.menu.show_status(self.score, self.highest_score, self.death_count, self.screen)
             self.menu.update_message(f'Game over. Press any key to restart.')
         
@@ -98,9 +110,33 @@ class Game:
             self.game_speed += 2
 
     def draw_score(self):
-        font = pygame.font.Font(FONT_STYLE, 30)
-        text = font.render(f'Score: {self.score}', True, (0,0,0))
+        font = pygame.font.Font(FONT_STYLE, 24)
+        text = font.render(f'Score: {self.score}', False, (0,0,0), (255,255,255))
         text_rect = text.get_rect()
         text_rect.center = (1000, 50)
         self.screen.blit(text, text_rect)
-        
+
+    def update_background(self):
+        self.background_color_count +=1
+        if self.background_color_count > 200:
+            self.background_color_count = 0
+            self.background_dark = False if self.background_dark else True
+    
+        if self.background_dark:
+            self.background_color -= (5 * int(self.background_color > 65))
+        else:
+            self.background_color += 5 * int(self.background_color < 250)
+
+    def draw_power_up_time(self):
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_time_up - pygame.time.get_ticks()) / 1000, 2)
+
+            if time_to_show >= 0:
+                font = pygame.font.Font(FONT_STYLE, 24)
+                text = font.render(f'{self.player.type} enabled for {time_to_show} seconds', False, (0,0,0), (255,255,255))
+                text_rect = text.get_rect()
+                text_rect.bottomleft = (200, 50)
+                self.screen.blit(text, text_rect)
+            else:
+                self.player.has_power_up = False
+                self.player.type = DEFAULT_TYPE

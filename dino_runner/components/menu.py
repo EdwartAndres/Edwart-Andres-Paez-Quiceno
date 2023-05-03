@@ -38,7 +38,7 @@ class Menu:
         datas = [f"Your Score:  {score}", f"Highest Score:  {highest_score}", f"Total Deaths:  {total_deaths}"]
         for data in datas:
             #proceso de mostrar datos uno por uno
-            self.text = self.font.render(data, True, (0, 0, 0))
+            self.text = self.font.render(data, True, (60, 60, 60))
             self.text_rect = self.text.get_rect()
             self.text_rect.center = (self.HALF_SCREEN_WIDTH, self.HALF_SCREEN_HEIGHT +60 +(40*datas.index(data)))
             self.draw(screen)
