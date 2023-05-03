@@ -1,6 +1,7 @@
 import pygame
 
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+
 from dino_runner.components.dinosaur import Dinosaur
 
 
@@ -18,30 +19,21 @@ class Game:
         self.player = Dinosaur()
 
     def run(self):
-    
-
+        # Game loop: events - update - draw
         self.playing = True
         while self.playing:
-            # 1. Manejar eventos
             self.events()
-
-            # 2. Actualizar el estado del juego
             self.update()
-
-            # 3. Dibujar objetos en pantalla
             self.draw()
-
-        # Salir del programa
         pygame.quit()
-        
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
-
+            
     def update(self):
-        user_input =pygame.key.get_pressed()
+        user_input = pygame.key.get_pressed()
         self.player.update(user_input)
 
     def draw(self):
